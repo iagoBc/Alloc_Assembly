@@ -1,23 +1,25 @@
 .section .data
+    .globl topoInicialHeap
     topoInicialHeap: .quad 0     # variável global (ponteiro void*)
+    .globl inicio_heap
     inicio_heap:     .quad 0
+    .globl topo_heap
     topo_heap:       .quad 0
-    str: .string "TESTE\n"
-    str1: .string "A: %p\n"
-    str2: .string "topoInicialHeap: %p\n"
-    str3: .string "topo_heap: %p\n"
-    str4: .string "inicio_heap: %p\n"
+
+    str: .string "teste%d\n" 
 
 .section .bss
     # Definição de offsets
-    .equ BLOCO_OCUPADO, 0         # byte 0: ocupado (unsigned char)
-    .equ BLOCO_TAMANHO, 4         # bytes 4-7: tamanho (int), após 3 de padding
-    .equ BLOCO_PROX, 8            # bytes 8-15: ponteiro para próximo bloco
     .equ TAM_BLOCO, 16            # total de bytes do cabeçalho
-    .equ PAGINA, 32             # tamanho de página (alocação em múltiplos)
+    .equ PAGINA, 4096             # tamanho de página (alocação em múltiplos)
 
 .section .text
-.globl main
+
+.globl iniciaAlocador
+.globl finalizaAlocador
+.globl alocaMem
+.globl liberaMem
+.globl imprimeMapa
 
 tamanhoAlocado:
     pushq %rbp
@@ -66,27 +68,29 @@ alocaMem:
     pushq %rbp
     movq %rsp, %rbp
 
-    movq inicio_heap, %rax    # Bloco* atual = inicio_heap
-    movq $0, %rcx             # Bloco* melhor = NULL
+    movq inicio_heap, %rax    # atual = inicio_heap
+    movq $0, %rcx             # melhor = NULL
 
 loop:
     cmpq $0, %rax             # while (atual)
-    je fora_loop
+    je fora_loop    
 
-    cmpb $0, (%rax)           # if (!atual->ocupado) - campo 'ocupado' é byte
+    cmpb $0, (%rax)           # if (!atual->ocupado)
     jne avanca_prox
 
-    movq 4(%rax), %rdx        # atual->tamanho
-    cmpq %rdi, %rdx           # atual->tamanho >= num_bytes ?
-    jl avanca_prox
+    movq 4(%rax), %rdx        # rdx = atual->tamanho
+    cmpq %rdx, %rdi
+    jg avanca_prox
 
     cmpq $0, %rcx             # se melhor ainda é NULL
     je salva_melhor
 
-    movq 4(%rcx), %r8         # melhor->tamanho
-    cmpq %r8, %rdx            # atual->tamanho < melhor->tamanho ?
-    jge avanca_prox
+    movq 4(%rcx), %r8         # r8 = melhor->tamanho
+    cmpq %rdx, %r8            # se melhor->tamanho > atual->tamanho
+    jg salva_melhor           # atual é melhor
 
+    jmp avanca_prox
+  
 salva_melhor:
     movq %rax, %rcx           # melhor = atual
 
@@ -96,50 +100,90 @@ avanca_prox:
 
 fora_loop:
     cmpq $0, %rcx             # if (melhor)
-    je bloco_inicial
+    je novo_bloco
 
     movb $1, (%rcx)           # melhor->ocupado = 1
 
-    lea TAM_BLOCO(%rcx), %rax # return (void*)(melhor + 1)
+    addq $TAM_BLOCO, %rcx
+    movq %rcx, %rax # return (void*)(melhor + 1)
 
     popq %rbp
     ret
 
-bloco_inicial:
-    call tamanhoAlocado #retorno em %rax
-    movq %rax, %rdi #rdi = tamanho a ser alocado
-    movq %rdi, %rcx #rcx = tamanho a ser alocado
+novo_bloco:
+    call tamanhoAlocado     #retorno em %rax
+    movq %rax, %rdi         #rdi = tamanho a ser alocado
+    movq %rdi, %r10         #r9 = tamanho a ser alocado
 
-    movq topoInicialHeap, %r8
-    addq %rdi, %r8 #tem o valor do topo da heap
+    cmpq $0, topo_heap
+    je primeirobloco
+
+    movq topo_heap, %r8
+    addq $TAM_BLOCO, %r10
+    addq %r10, %r8 #tem o valor do topo da heap
     movq $12, %rax
     movq %r8, %rdi
     syscall
 
+    jmp continuar
+    
+primeirobloco:
+    movq topoInicialHeap, %r8
+    addq $TAM_BLOCO, %r10
+    addq %r10, %r8 #tem o valor do topo da heap
+    movq $12, %rax
+    movq %r8, %rdi
+    syscall
+
+continuar:
     cmpq $-1, %rax         # compara retorno de sbrk com -1
     je erro_sbrk           # se for igual, salta para retorno de NULL
 
-     movq topoInicialHeap, %rax    # %rax = início do novo bloco (antigo topo)
+    subq %r10, %rax
+
     movb $1, (%rax)               # marca como ocupado (1 byte)
-    subq $TAM_BLOCO, %rcx         # tamanho do campo de dados
-    movq %rcx, 4(%rax)            # escreve o tamanho do bloco
-    movq $0, 8(%rax)              # prox = NULL
+    subq $TAM_BLOCO, %r10         # tamanho do campo de dados
+    movq %r10, 4(%rax)            # escreve o tamanho do bloco 
     
-    # if (!inicio_heap) inicio_heap = novo;
     movq inicio_heap, %r8
     cmpq $0, %r8
-    jne conecta_fim
+    je inicioheap
 
+    movq topo_heap, %r8
+    addq %r10, %r8 #tem o valor do topo da heap
+    addq $TAM_BLOCO, %r8
+    movq %r8, topo_heap
+
+    cmpq $inicio_heap, %rax #se atual é o primeirobloco
+    je fim
+
+novo_prox:
+    movq inicio_heap, %r13
+    movq 8(%r13), %r14
+    cmpq $0, %r14
+    je prox
+
+achar_prox_null:
+    movq %r14, %r13
+    movq 8(%r13), %r14
+    cmpq $0, %r14
+    jne achar_prox_null
+
+prox:
+    movq %rax, 8(%r13)
+    jmp fim
+
+inicioheap:
     movq %rax, inicio_heap
-    jmp continua
 
-    conecta_fim:
-    movq topo_heap, %r9
-    movq %rax, 8(%r9)     # topo_heap->prox = novo
+    movq %rax, %r11
+    addq $TAM_BLOCO, %r10
+    addq %r10, %r11
+    addq %r11, topo_heap
 
-    continua:
-    movq %rax, topo_heap
+    movq $0, 8(%rax)
 
+fim:
     # return (void*)(novo + 1)
     addq $TAM_BLOCO, %rax
 
@@ -171,39 +215,3 @@ fim_mem:
     popq %rbp
     ret
 
-main:
-    pushq %rbp
-    movq %rsp, %rbp
-
-    call iniciaAlocador
-    
-    movq topoInicialHeap, %rsi
-    movq $str2, %rdi
-    call printf
-
-    movq $1000, %rdi
-    call alocaMem
-
-    movq %rax, %rbx
-    movq %rax, %rdi
-    movq $str, %rsi
-    call strcpy
-
-
-    movq %rbx, %rdi
-    call printf 
-
-    movq topo_heap, %rsi
-    movq $str3, %rdi
-    call printf
-
-    movq inicio_heap, %rsi
-    movq $str4, %rdi
-    call printf
-    
-    call finalizaAlocador
-
-
-    movq %rax, %rdi
-    movq $60, %rax              # syscall exit
-    syscall

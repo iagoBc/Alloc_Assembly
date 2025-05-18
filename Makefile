@@ -1,8 +1,19 @@
-all:
-	as meuAlocador.s -o meuAlocador.o -g
-	ld meuAlocador.o -o meuAlocador -dynamic-linker /lib64/ld-linux-x86-64.so.2 \
-	/usr/lib/x86_64-linux-gnu/crt1.o /usr/lib/x86_64-linux-gnu/crti.o \
-	/usr/lib/x86_64-linux-gnu/crtn.o -lc
+CC = gcc
+AS = as
+CFLAGS = -g -no-pie
+
+main: main.o meuAlocador.o
+	$(CC) $(CFLAGS) -o main main.o meuAlocador.o
+
+meuAlocador.o: meuAlocador.s
+	$(AS) $(CFLAGS) -c meuAlocador.s -o meuAlocador.o
+
+main.o: main.c meuAlocador.h
+	$(CC) $(CFLAGS) -c main.c -o main.o
+
+clean:
+	rm -rf ./*.o
 
 purge:
-	rm *.o meuAlocador
+	make clean
+	rm -rf main

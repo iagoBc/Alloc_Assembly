@@ -17,7 +17,6 @@ int tamanhoAlocado(int tamanho){
 // Inicializa o alocador de memória
 void iniciaAlocador(){
     topoInicialHeap = sbrk(0);                     // Salva o topo atual da heap.
-    printf ("Topo Inicial Heap: %p\n", topoInicialHeap); // Imprime o topo da heap.
     inicio_heap = NULL;                            // Inicializa a lista de blocos como vazia.
     topo_heap = NULL;
 }
@@ -74,24 +73,3 @@ int liberaMem(void* bloco) {
     return 0;
 }
 
-void imprimeMapa() {
-    Bloco* atual = inicio_heap;
-
-    while (atual){
-        // Parte gerencial: TAM_BLOCO bytes representados por '#'
-        
-        for (int i = 0; i < TAM_BLOCO; i++) printf("#");
-        
-        
-
-        // Parte de dados do bloco: '+' se ocupado, '-' se livre
-        char simbolo = atual->ocupado ? '+' : '-';
-        for (int i = 0; i < atual->tamanho; i++) {
-            printf("%c", simbolo);
-        }
-
-        atual = atual->prox;
-    }
-
-    printf("\n");
-}
