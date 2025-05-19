@@ -66,6 +66,25 @@ finalizaAlocador:
     popq %rbp
     ret
 
+liberaMem:
+    pushq %rbp
+    movq %rsp, %rbp
+
+    cmpq $0, %rdi                           # Vê se o bloco é NULL
+    je .erro_lib                            # Se for NULL retorna -1
+
+    subq $TAM_BLOCO, %rdi                   # Faz rdi apontar para area da var ocupado 
+    movb $0, (%rdi)                         # Marca o bloco como desocupado
+
+    movq $0, %rax                           # Retorna 0 pois a liberação foi bem sucedida
+    popq %rbp
+    ret
+
+    .erro_lib:
+        movq $-1, %rax                      # Retorna -1 pois o bloco não existe
+        popq %rbp
+        ret
+    
 alocaMem:
     pushq %rbp
     movq %rsp, %rbp
@@ -155,26 +174,7 @@ alocaMem:
         movq $0, %rax                       # Retorna NULL
         popq %rbp
         ret
-
-liberaMem:
-    pushq %rbp
-    movq %rsp, %rbp
-
-    cmpq $0, %rdi                           # Vê se o bloco é NULL
-    je .erro_lib                            # Se for NULL retorna -1
-
-    subq $TAM_BLOCO, %rdi                   # Faz rdi apontar para area da var ocupado 
-    movb $0, (%rdi)                         # Marca o bloco como desocupado
-
-    movq $0, %rax                           # Retorna 0 pois a liberação foi bem sucedida
-    popq %rbp
-    ret
-
-    .erro_lib:
-        movq $-1, %rax                      # Retorna -1 pois o bloco não existe
-        popq %rbp
-        ret
-        
+    
 imprimeMapa:
     pushq %rbp
     movq %rsp, %rbp
