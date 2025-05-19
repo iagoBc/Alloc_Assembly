@@ -76,16 +76,14 @@ Imprime um mapa visual da heap:
 
 Exemplo de saída:
 ```
-################
-***************
-################
---------------
+################***************
+################--------------
 ```
 
 ## Constantes
 
 ```asm
-.equ PAGINA, 4096      # Tamanho de página
+.equ PAGINA, 4096      # Tamanho da página
 .equ TAM_BLOCO, 16     # Tamanho do cabeçalho do bloco
 ```
 
@@ -94,20 +92,6 @@ Exemplo de saída:
 - Linux x86_64
 - `gcc`, `make`, `as`, `ld`
 - `printf` da biblioteca C para saída
-
-## Compilação e Execução
-
-```bash
-make
-./main
-```
-
-> **Nota:** para suprimir mensagens como `make[1]: Entrando no diretório...`, adicione a flag `--silent` ou use `@` nas receitas do Makefile.
-
-Exemplo:
-```makefile
-@echo "Compilando..."
-```
 
 ## Autor
 
