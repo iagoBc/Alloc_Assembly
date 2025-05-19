@@ -29,6 +29,9 @@ Inicializa o alocador salvando o topo atual da heap em variáveis globais.
 ```asm
 .globl iniciaAlocador
 ```
+```C
+void iniciaAlocador();
+```
 
 ### 2. `finalizaAlocador`
 
