@@ -33,7 +33,7 @@ tamanhoAlocado:
     movq $PAGINA, %rcx                      # Divisor
     divq %rcx                               # rax = quociente, rdx = resto
     
-    imul $PAGINA, %rax                      # Multiplica o tamanho da PAGINA com o quociente e retorna rax
+    imulq $PAGINA, %rax                      # Multiplica o tamanho da PAGINA com o quociente e retorna rax
     addq $TAM_BLOCO, %rax                   # Adiciona o tamanho do cabeçalho
 
     popq %rbp
