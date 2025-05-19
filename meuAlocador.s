@@ -84,7 +84,7 @@ liberaMem:
         movq $-1, %rax                      # Retorna -1 pois o bloco não existe
         popq %rbp
         ret
-    
+     
 alocaMem:
     pushq %rbp
     movq %rsp, %rbp
@@ -174,7 +174,7 @@ alocaMem:
         movq $0, %rax                       # Retorna NULL
         popq %rbp
         ret
-    
+   
 imprimeMapa:
     pushq %rbp
     movq %rsp, %rbp

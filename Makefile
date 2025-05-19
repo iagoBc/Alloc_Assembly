@@ -1,5 +1,5 @@
 EX = main
-ARQC = avalia
+ARQC = main
 CC = gcc
 AS = as
 CFLAGS = -g -no-pie
