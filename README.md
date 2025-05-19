@@ -11,6 +11,13 @@ Este projeto implementa um alocador de memória dinâmico simples em Assembly (`
 - Impressão do mapa da heap
 - Alocação feita em múltiplos de páginas (4096 bytes)
 
+## Constantes
+
+```asm
+.equ PAGINA, 4096      # Tamanho da página
+.equ TAM_BLOCO, 16     # Tamanho do cabeçalho do bloco
+```
+
 ## Estrutura do Bloco
 
 Cada bloco de memória contém um **cabeçalho** de 16 bytes (valor de `TAM_BLOCO`) com as seguintes informações:
@@ -19,13 +26,6 @@ Cada bloco de memória contém um **cabeçalho** de 16 bytes (valor de `TAM_BLOC
 - **Bytes 8-15**: Tamanho do bloco de dados (em bytes)
 
 A área de dados vem logo após esse cabeçalho.
-
-## Constantes
-
-```asm
-.equ PAGINA, 4096      # Tamanho da página
-.equ TAM_BLOCO, 16     # Tamanho do cabeçalho do bloco
-```
 
 ## Instruções de Uso
 
