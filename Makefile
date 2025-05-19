@@ -1,21 +1,20 @@
 EX = main
-C = avalia
+ARQC = avalia
 CC = gcc
 AS = as
 CFLAGS = -g -no-pie
 
-main: $(C).o meuAlocador.o
-	$(CC) $(CFLAGS) -o $(EX) $(C).o meuAlocador.o
+main: $(ARQC).o meuAlocador.o
+	$(CC) $(CFLAGS) -o $(EX) $(ARQC).o meuAlocador.o
 
 meuAlocador.o: meuAlocador.s
 	$(AS) $(CFLAGS) -c meuAlocador.s -o meuAlocador.o
 
-main.o: $(C).c meuAlocador.h
-	$(CC) $(CFLAGS) -c $(C).c -o $(C).o
+main.o: $(ARQC).c meuAlocador.h
+	$(CC) $(CFLAGS) -c $(ARQC).c -o $(ARQC).o
 
 clean:
-	rm *.o
+	@rm -f *~ *.o
 
-purge:
-	make clean
-	rm $(EX)
+purge:   clean
+	@rm -f $(EX)
