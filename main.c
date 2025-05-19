@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include "meuAlocador.h"
 
-extern void *topoInicialHeap;
-extern void *topo_heap;
-
 int main(){
     void *a, *b, *c, *d;
     iniciaAlocador();
