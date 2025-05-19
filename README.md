@@ -20,6 +20,13 @@ Cada bloco de memória contém um **cabeçalho** de 16 bytes (valor de `TAM_BLOC
 
 A área de dados vem logo após esse cabeçalho.
 
+## Constantes
+
+```asm
+.equ PAGINA, 4096      # Tamanho da página
+.equ TAM_BLOCO, 16     # Tamanho do cabeçalho do bloco
+```
+
 ## Instruções de Uso
 
 ### 1. `iniciaAlocador`
@@ -40,8 +47,24 @@ Restaura o topo da heap ao valor salvo inicialmente, efetivamente liberando toda
 ```asm
 .globl finalizaAlocador
 ```
+```C
+void finalizaAlocador();
+```
+### 3. `liberaMem`
 
-### 3. `alocaMem`
+Libera um bloco de memória previamente alocado:
+
+- Marca o bloco como livre alterando o byte de controle.
+- Retorna `0` se sucesso, ou `-1` se o ponteiro fornecido for nulo.
+
+```asm
+.globl liberaMem
+```
+```C
+int liberaMem(void* bloco);
+```
+
+### 4. `alocaMem`
 
 Aloca memória usando a política de **Best Fit**:
 
@@ -52,16 +75,8 @@ Aloca memória usando a política de **Best Fit**:
 ```asm
 .globl alocaMem
 ```
-
-### 4. `liberaMem`
-
-Libera um bloco de memória previamente alocado:
-
-- Marca o bloco como livre alterando o byte de controle.
-- Retorna `0` se sucesso, ou `-1` se o ponteiro fornecido for nulo.
-
-```asm
-.globl liberaMem
+```C
+void* alocaMem(int num_bytes);
 ```
 
 ### 5. `imprimeMapa`
@@ -76,18 +91,14 @@ Imprime um mapa visual da heap:
 ```asm
 .globl imprimeMapa
 ```
+```C
+void imprimeMapa();
+```
 
 Exemplo de saída:
 ```
 ################***************
 ################--------------
-```
-
-## Constantes
-
-```asm
-.equ PAGINA, 4096      # Tamanho da página
-.equ TAM_BLOCO, 16     # Tamanho do cabeçalho do bloco
 ```
 
 ## Dependências
