@@ -7,10 +7,10 @@
     .globl topo_heap
     topo_heap:       .quad 0
 
-    strCabecalho: .string "################"
-    strOcupado: .string "*"
-    strDesocupado: .string "-"
-    strFim: .string "\n"
+    str_cabecalho: .string "################"
+    str_ocupado: .string "*"
+    str_desocupado: .string "-"
+    str_fim: .string "\n"
 
 .section .text
 
@@ -189,7 +189,7 @@ imprimeMapa:
         cmpq %r9, %rbx                      # Se for igual nâo possui mais nenhum bloco
         je .fim
 
-        mov $strCabecalho, %rdi             # Imprime '#' para o cabeçalho do bloco
+        mov $str_cabecalho, %rdi             # Imprime '#' para o cabeçalho do bloco
         call printf
 
         movq $0, %r10                       # i = 0
@@ -200,7 +200,7 @@ imprimeMapa:
         cmpq 8(%rbx), %r10                  # i < tamanho do bloco
         jge .prox_bloco                     # Se i for maior ou igual ao tamanho do bloco, salta para o prox bloco
 
-        movq $strOcupado, %rdi              # Imprime '*' até chegar no tamanho do bloco
+        movq $str_ocupado, %rdi              # Imprime '*' até chegar no tamanho do bloco
         call printf
 
         addq $1, %r10                       # i++
@@ -210,7 +210,7 @@ imprimeMapa:
         cmpq 8(%rbx), %r10                  # i < tamanho do bloco
         jge .prox_bloco                     # Se i for maior ou igual ao tamanho do bloco, salta para o prox bloco
 
-        movq $strDesocupado, %rdi           # Imprime '-' até chegar no tamanho do bloco
+        movq $str_desocupado, %rdi           # Imprime '-' até chegar no tamanho do bloco
         call printf
 
         addq $1, %r10                       # i++
@@ -222,7 +222,7 @@ imprimeMapa:
         jmp .inicio
 
     .fim:
-        movq $strFim, %rdi
+        movq $str_fim, %rdi
         call printf
 
         popq %rbp
